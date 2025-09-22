@@ -1,89 +1,113 @@
--- PULL_A_SWORD_OFFICIAL_v1
--- Main Pull A Sword Script (Cartoony GUI with Auto features)
+-- Pull A Sword Hub 🍭🍬 By Carl 💫
 
--- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+local UIGradient = Instance.new("UIGradient")
+local Title = Instance.new("TextLabel")
 
--- Functions
-local function autoClick()
-    local remote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("ClickEvent")
-    while _G.AutoClick do
-        remote:FireServer()
-        task.wait() -- super fast
-    end
-end
+-- GUI setup
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local function autoRebirth()
-    local remote = ReplicatedStorage:WaitForChild("GameClient"):WaitForChild("Events"):WaitForChild("RemoteEvent"):WaitForChild("RebirthEvent")
-    while _G.AutoRebirth do
-        remote:FireServer()
-        task.wait(0.5)
-    end
-end
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0, 400, 0, 500)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MainFrame.Active = true
+MainFrame.Draggable = true
 
-local function autoBoss()
-    local remote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("WinBossEvent")
-    local bosses = {"Boss1","Boss2","Boss3","Boss4","Boss5","Boss6","Boss7","Boss8","Boss9","Boss10"}
-    while _G.AutoBoss do
-        for _,b in ipairs(bosses) do
-            remote:FireServer(b)
-        end
-        task.wait()
-    end
-end
+-- Rounded corners
+UICorner.CornerRadius = UDim.new(0, 25)
+UICorner.Parent = MainFrame
 
-local function autoMega()
-    local remote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("WinMegaBossEvent")
-    while _G.AutoMega do
-        remote:FireServer("Dragon2","Normal")
-        task.wait()
-    end
-end
+-- Gradient background
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 182, 193)), -- light pink
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(135, 206, 250)) -- sky blue
+}
+UIGradient.Rotation = 45
+UIGradient.Parent = MainFrame
 
--- GUI (cartoony style basic)
-local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 250, 0, 300)
-Frame.Position = UDim2.new(0.5, -125, 0.5, -150)
-Frame.BackgroundColor3 = Color3.fromRGB(255, 200, 100)
-Frame.Active = true
-Frame.Draggable = true
+-- Title
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 60)
+Title.BackgroundTransparency = 1
+Title.Text = "🍭 Pull A Sword Hub 🍬\nBy Carl 💫"
+Title.Font = Enum.Font.Cartoon
+Title.TextSize = 28
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextStrokeTransparency = 0.2
 
-local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0, 16)
-
-local Title = Instance.new("TextLabel", Frame)
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.Text = "Pull A Sword"
-Title.BackgroundColor3 = Color3.fromRGB(255, 170, 70)
-Title.TextScaled = true
-
-local function addButton(text, order, callback)
-    local btn = Instance.new("TextButton", Frame)
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.new(0, 10, 0, 40 + (order * 40))
+-- Function to create buttons
+local function createButton(text, posY, color, callback)
+    local btn = Instance.new("TextButton")
+    btn.Parent = MainFrame
+    btn.Size = UDim2.new(0, 180, 0, 40)
+    btn.Position = UDim2.new(0.5, -90, 0, posY)
+    btn.BackgroundColor3 = color
+    btn.Font = Enum.Font.Cartoon
+    btn.TextSize = 20
     btn.Text = text
-    btn.BackgroundColor3 = Color3.fromRGB(255, 220, 120)
-    btn.TextScaled = true
     btn.MouseButton1Click:Connect(callback)
+    return btn
 end
 
-addButton("Auto Click", 1, function()
-    _G.AutoClick = not _G.AutoClick
-    if _G.AutoClick then autoClick() end
+-- Auto Click
+local autoClicking = false
+createButton("⚡ Auto Click", 80, Color3.fromRGB(255, 228, 181), function()
+    autoClicking = not autoClicking
+    if autoClicking then
+        spawn(function()
+            while autoClicking do
+                ReplicatedStorage.Remotes.Events.ClickEvent:FireServer()
+                task.wait() -- sobrang bilis!
+            end
+        end)
+    end
 end)
 
-addButton("Auto Rebirth", 2, function()
-    _G.AutoRebirth = not _G.AutoRebirth
-    if _G.AutoRebirth then autoRebirth() end
+-- Auto Rebirth
+local autoRebirth = false
+createButton("🔄 Auto Rebirth", 130, Color3.fromRGB(152, 251, 152), function()
+    autoRebirth = not autoRebirth
+    if autoRebirth then
+        spawn(function()
+            while autoRebirth do
+                ReplicatedStorage.GameClient.Events.RemoteEvent.RebirthEvent:FireServer()
+                task.wait(0.1)
+            end
+        end)
+    end
 end)
 
-addButton("Auto Boss", 3, function()
-    _G.AutoBoss = not _G.AutoBoss
-    if _G.AutoBoss then autoBoss() end
+-- Auto Boss (Boss1 - Boss10)
+local autoBoss = false
+createButton("👹 Auto Boss 1-10", 180, Color3.fromRGB(255, 160, 122), function()
+    autoBoss = not autoBoss
+    if autoBoss then
+        spawn(function()
+            while autoBoss do
+                for i=1,10 do
+                    ReplicatedStorage.Remotes.Events.WinBossEvent:FireServer("Boss"..i)
+                end
+                task.wait()
+            end
+        end)
+    end
 end)
 
-addButton("Auto Mega", 4, function()
-    _G.AutoMega = not _G.AutoMega
-    if _G.AutoMega then autoMega() end
+-- Auto Dragon Boss
+local autoMega = false
+createButton("🐉 Auto Dragon", 230, Color3.fromRGB(135, 206, 235), function()
+    autoMega = not autoMega
+    if autoMega then
+        spawn(function()
+            while autoMega do
+                ReplicatedStorage.Remotes.Events.WinMegaBossEvent:FireServer("Dragon2","Normal")
+                task.wait()
+            end
+        end)
+    end
 end)
